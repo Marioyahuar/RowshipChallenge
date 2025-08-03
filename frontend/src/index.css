@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+  }
+  
+  .card-header {
+    @apply flex items-center justify-between mb-4 pb-2 border-b border-gray-100;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .metric-label {
+    @apply text-sm text-gray-600 uppercase tracking-wide;
+  }
+  
+  .status-indicator {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-active {
+    @apply bg-success-50 text-success-600;
+  }
+  
+  .status-inactive {
+    @apply bg-gray-100 text-gray-600;
+  }
+  
+  .status-error {
+    @apply bg-error-50 text-error-600;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300;
+  }
+}

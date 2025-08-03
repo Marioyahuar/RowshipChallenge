@@ -1,0 +1,27 @@
+{
+  "name": "rowshipchallenge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:tokens": "hardhat run scripts/deploy-tokens.ts --network hardhat",
+    "deploy:pool": "hardhat run scripts/deploy-pool.ts --network hardhat",
+    "deploy:alm": "hardhat run scripts/deploy-alm.ts --network hardhat",
+    "deploy:setup": "hardhat run scripts/setup-testnet.ts --network hardhat",
+    "simulate": "hardhat run scripts/simulate-activity.ts --network hardhat",
+    "test": "hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@types/node": "^24.1.0",
+    "ethers": "^6.15.0",
+    "hardhat": "^2.26.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
