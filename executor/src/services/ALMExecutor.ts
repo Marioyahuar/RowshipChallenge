@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { logger } from '../utils/logger.js';
-import { getALMManagerContract, parseGwei } from '../utils/contracts.js';
-import { MonitoringConfig, RebalanceEvent, ExecutorMetrics } from '../types/index.js';
+import { logger } from '../utils/logger';
+import { getALMManagerContract, parseGwei } from '../utils/contracts';
+import { MonitoringConfig, RebalanceEvent, ExecutorMetrics } from '../types/index';
 
 export class ALMExecutor {
   private provider: ethers.Provider;
@@ -31,9 +31,15 @@ export class ALMExecutor {
       averageRebalanceTime: 0
     };
 
+    // Initialize async - we'll log the address later
+    this.initializeAsync();
+  }
+
+  private async initializeAsync() {
+    const signerAddress = await this.signer.getAddress();
     logger.info('ALMExecutor initialized', {
-      almManagerAddress: config.almManagerAddress,
-      signerAddress: this.signer.address
+      almManagerAddress: this.config.almManagerAddress,
+      signerAddress: signerAddress
     });
   }
 
@@ -63,31 +69,37 @@ export class ALMExecutor {
       rebalanceEvent.oldTickUpper = currentState.currentTickUpper;
 
       // Check gas price
-      const gasPrice = await this.provider.getFeeData();
+      const feeData = await this.provider.getFeeData();
       const maxGasPrice = parseGwei(this.config.maxGasPriceGwei.toString());
       
-      if (gasPrice.gasPrice && gasPrice.gasPrice > maxGasPrice) {
-        throw new Error(`Gas price too high: ${ethers.formatUnits(gasPrice.gasPrice, 'gwei')} gwei`);
-      }
-
-      // Prepare transaction options
+      // Prepare transaction options (use legacy gas pricing for Hardhat)
       const txOptions: any = {};
-      if (gasPrice.gasPrice) {
-        txOptions.gasPrice = gasPrice.gasPrice;
-      }
-      if (gasPrice.maxFeePerGas && gasPrice.maxPriorityFeePerGas) {
-        txOptions.maxFeePerGas = gasPrice.maxFeePerGas;
-        txOptions.maxPriorityFeePerGas = gasPrice.maxPriorityFeePerGas;
+      
+      if (feeData.gasPrice) {
+        // Check if gas price is too high
+        if (feeData.gasPrice > maxGasPrice) {
+          throw new Error(`Gas price too high: ${ethers.formatUnits(feeData.gasPrice, 'gwei')} gwei`);
+        }
+        // Use legacy gas pricing (works better with Hardhat)
+        txOptions.gasPrice = feeData.gasPrice;
+      } else if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
+        // Use EIP-1559 gas pricing (for mainnet)
+        txOptions.maxFeePerGas = feeData.maxFeePerGas;
+        txOptions.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
       }
 
       // Execute rebalance
       logger.info('Sending rebalance transaction...', txOptions);
+      
+      // Add gas limit to prevent out of gas
+      txOptions.gasLimit = 500000;
+      
       const tx = await this.almContract.rebalance(txOptions);
       
       logger.info('Rebalance transaction sent', {
         hash: tx.hash,
-        gasPrice: gasPrice.gasPrice?.toString(),
-        maxFeePerGas: gasPrice.maxFeePerGas?.toString()
+        gasPrice: feeData.gasPrice?.toString(),
+        maxFeePerGas: feeData.maxFeePerGas?.toString()
       });
 
       // Wait for confirmation
@@ -140,9 +152,10 @@ export class ALMExecutor {
   }
 
   async checkBalance(): Promise<{ address: string; balance: string }> {
-    const balance = await this.provider.getBalance(this.signer.address);
+    const address = await this.signer.getAddress();
+    const balance = await this.provider.getBalance(address);
     return {
-      address: this.signer.address!,
+      address: address,
       balance: ethers.formatEther(balance)
     };
   }
@@ -176,7 +189,7 @@ export class ALMExecutor {
     }
   }
 
-  getSignerAddress(): string {
-    return this.signer.address!;
+  async getSignerAddress(): Promise<string> {
+    return await this.signer.getAddress();
   }
 }

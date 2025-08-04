@@ -11,6 +11,7 @@ export function Dashboard() {
     metrics, 
     almState, 
     poolData, 
+    tvlData,
     loading, 
     error, 
     lastUpdate,
@@ -58,10 +59,10 @@ export function Dashboard() {
             </div>
             {!isCorrectNetwork(connectionState.networkId!) && (
               <button
-                onClick={() => switchNetwork(NETWORK_CONFIG.SONIC_TESTNET.chainId)}
+                onClick={() => switchNetwork(NETWORK_CONFIG.HARDHAT_LOCAL.chainId)}
                 className="btn btn-primary w-full text-sm"
               >
-                Switch to Sonic Testnet
+                Switch to Hardhat Local
               </button>
             )}
             <button
@@ -79,6 +80,7 @@ export function Dashboard() {
             <button
               onClick={connectWallet}
               className="btn btn-primary w-full"
+              disabled={false}
             >
               Connect Wallet
             </button>
@@ -143,9 +145,9 @@ export function Dashboard() {
           <div className="lg:col-span-3 lg:order-1">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <MetricsCard
-                title="Total Liquidity"
-                value={almState ? formatTokenAmount(almState.totalLiquidity, 0, 0) : '--'}
-                subtitle="Active in position"
+                title="Pool TVL"
+                value={tvlData ? `$${tvlData.poolTVL.total.toFixed(2)}` : '--'}
+                subtitle={`USDC: $${tvlData ? tvlData.poolTVL.token0.toFixed(2) : '--'} | SCUSD: $${tvlData ? tvlData.poolTVL.token1.toFixed(2) : '--'}`}
                 loading={loading}
                 error={!!error}
               />
@@ -185,16 +187,16 @@ export function Dashboard() {
 
           {/* Transaction History - Right Side */}
           <div className="lg:col-span-2 lg:order-4">
-            <TransactionHistory loading={loading} />
+            <TransactionHistory />
           </div>
 
           {/* Additional Metrics - Bottom */}
           <div className="lg:col-span-4 lg:order-5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <MetricsCard
-                title="Pool Tick"
-                value={poolData ? poolData.currentTick : '--'}
-                subtitle="Current price tick"
+                title="ALM TVL"
+                value={tvlData ? `$${tvlData.almTVL.total.toFixed(2)}` : '--'}
+                subtitle={`${tvlData && tvlData.poolTVL.total > 0 ? ((tvlData.almTVL.total / tvlData.poolTVL.total) * 100).toFixed(1) : '--'}% of Pool | Liquidity: ${almState ? formatTokenAmount(almState.totalLiquidity, 0, 0) : '--'}`}
                 loading={loading}
                 error={!!error}
               />

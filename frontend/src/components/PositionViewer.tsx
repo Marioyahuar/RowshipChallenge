@@ -56,7 +56,7 @@ export function PositionViewer() {
           <div>
             <div className="metric-label">Current Tick</div>
             <div className="text-lg font-semibold text-primary-600">
-              {poolData.currentTick}
+              {poolData.currentTick.toString()}
             </div>
           </div>
         </div>

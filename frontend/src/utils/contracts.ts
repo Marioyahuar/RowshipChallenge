@@ -42,11 +42,7 @@ export function getProvider(rpcUrl?: string): ethers.Provider {
     return new ethers.JsonRpcProvider(rpcUrl);
   }
   
-  // Try to use injected provider (MetaMask, etc.)
-  if (typeof window !== 'undefined' && window.ethereum) {
-    return new ethers.BrowserProvider(window.ethereum);
-  }
-  
-  // Fallback to default RPC
-  return new ethers.JsonRpcProvider('https://rpc.testnet.soniclabs.com');
+  // Use environment variable or fallback to localhost
+  const defaultRpcUrl = import.meta.env.VITE_RPC_URL || 'http://localhost:8545';
+  return new ethers.JsonRpcProvider(defaultRpcUrl);
 }

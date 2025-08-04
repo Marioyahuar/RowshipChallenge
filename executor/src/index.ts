@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
-import { logger } from './utils/logger.js';
-import { PoolMonitor } from './services/PoolMonitor.js';
-import { ALMExecutor } from './services/ALMExecutor.js';
-import { MetricsCollector } from './services/MetricsCollector.js';
-import { MonitoringConfig } from './types/index.js';
+import { logger } from './utils/logger';
+import { PoolMonitor } from './services/PoolMonitor';
+import { ALMExecutor } from './services/ALMExecutor';
+import { MetricsCollector } from './services/MetricsCollector';
+import { MonitoringConfig } from './types/index';
 
 // Load environment variables
 dotenv.config();

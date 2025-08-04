@@ -1,14 +1,14 @@
 import React from 'react';
 import { formatTimeAgo, formatTransactionHash, formatTickRange } from '../utils/formatting';
-import { RebalanceEvent } from '../types';
+import { useRebalanceHistory } from '../hooks/useRebalanceHistory';
 
 interface TransactionHistoryProps {
-  rebalanceHistory?: RebalanceEvent[];
   loading?: boolean;
 }
 
-export function TransactionHistory({ rebalanceHistory = [], loading = false }: TransactionHistoryProps) {
-  if (loading) {
+export function TransactionHistory({ loading = false }: TransactionHistoryProps) {
+  const { events: rebalanceHistory, loading: historyLoading, error: historyError } = useRebalanceHistory();
+  if (loading || historyLoading) {
     return (
       <div className="card">
         <div className="card-header">
@@ -30,39 +30,17 @@ export function TransactionHistory({ rebalanceHistory = [], loading = false }: T
     );
   }
 
-  // Mock data for demonstration since we don't have real transaction history yet
-  const mockHistory: RebalanceEvent[] = [
-    {
-      timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-      success: true,
-      oldTickLower: -2,
-      oldTickUpper: -1,
-      newTickLower: 0,
-      newTickUpper: 1,
-      transactionHash: '0x1234567890abcdef1234567890abcdef12345678',
-      gasUsed: '125000',
-    },
-    {
-      timestamp: new Date(Date.now() - 900000), // 15 minutes ago
-      success: true,
-      oldTickLower: -3,
-      oldTickUpper: -2,
-      newTickLower: -2,
-      newTickUpper: -1,
-      transactionHash: '0xabcdef1234567890abcdef1234567890abcdef12',
-      gasUsed: '118000',
-    },
-    {
-      timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-      success: false,
-      oldTickLower: -3,
-      oldTickUpper: -2,
-      newTickLower: 0,
-      newTickUpper: 0,
-    },
-  ];
-
-  const historyToShow = rebalanceHistory.length > 0 ? rebalanceHistory : mockHistory;
+  // Transform real events into the format expected by the UI
+  const historyToShow = rebalanceHistory.map(event => ({
+    timestamp: event.timestamp,
+    success: true, // Events from blockchain are successful by definition
+    oldTickLower: event.oldTickLower,
+    oldTickUpper: event.oldTickUpper,
+    newTickLower: event.newTickLower,
+    newTickUpper: event.newTickUpper,
+    transactionHash: event.transactionHash,
+    gasUsed: undefined, // We don't have gas data from events
+  }));
 
   return (
     <div className="card">

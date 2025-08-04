@@ -64,16 +64,25 @@ export function useConnection() {
         
         if (networkConfig) {
           try {
+            const chainParams = {
+              chainId: `0x${chainId.toString(16)}`,
+              chainName: networkConfig.name,
+              rpcUrls: [networkConfig.rpcUrl],
+              nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18,
+              },
+            };
+            
+            // Only add blockExplorerUrls if it's not localhost
+            if (!networkConfig.rpcUrl.includes('localhost')) {
+              (chainParams as any).blockExplorerUrls = [networkConfig.explorerUrl];
+            }
+            
             await window.ethereum.request({
               method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: `0x${chainId.toString(16)}`,
-                  chainName: networkConfig.name,
-                  rpcUrls: [networkConfig.rpcUrl],
-                  blockExplorerUrls: [networkConfig.explorerUrl],
-                },
-              ],
+              params: [chainParams],
             });
           } catch (addError) {
             console.error('Failed to add network:', addError);
@@ -97,7 +106,8 @@ export function useConnection() {
   };
 
   const isCorrectNetwork = (chainId: number): boolean => {
-    return chainId === NETWORK_CONFIG.SONIC_TESTNET.chainId || 
+    return chainId === NETWORK_CONFIG.HARDHAT_LOCAL.chainId ||
+           chainId === NETWORK_CONFIG.SONIC_TESTNET.chainId || 
            chainId === NETWORK_CONFIG.SEPOLIA.chainId;
   };
 

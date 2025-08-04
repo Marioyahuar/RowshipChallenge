@@ -3,11 +3,25 @@ import { useALMData } from '../hooks/useALMData';
 import { useConnection } from '../hooks/useConnection';
 import { ALMState, PoolData, ALMMetrics, ConnectionState } from '../types';
 
+interface TVLData {
+  almTVL: {
+    total: number;
+    token0: number;
+    token1: number;
+  };
+  poolTVL: {
+    total: number;
+    token0: number;
+    token1: number;
+  };
+}
+
 interface ALMContextType {
   // Data
   almState: ALMState | null;
   poolData: PoolData | null;
   metrics: ALMMetrics | null;
+  tvlData: TVLData | null;
   
   // State
   loading: boolean;
@@ -45,6 +59,7 @@ export function ALMProvider({ children }: ALMProviderProps) {
     almState,
     poolData,
     metrics,
+    tvlData,
     loading,
     error,
     lastUpdate,
@@ -65,6 +80,7 @@ export function ALMProvider({ children }: ALMProviderProps) {
     almState,
     poolData,
     metrics,
+    tvlData,
     
     // State
     loading,

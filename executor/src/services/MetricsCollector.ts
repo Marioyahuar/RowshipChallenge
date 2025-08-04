@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
-import { logger } from '../utils/logger.js';
-import { ALMState, PoolData, RebalanceEvent, ExecutorMetrics } from '../types/index.js';
+import { logger } from '../utils/logger';
+import { ALMState, PoolData, RebalanceEvent, ExecutorMetrics } from '../types/index';
 
 interface MetricsSnapshot {
   timestamp: Date;

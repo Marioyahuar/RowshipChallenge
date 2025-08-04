@@ -23,6 +23,17 @@ async function main() {
     const fakeUSDC = await ethers.getContractAt("FakeUSDC", addresses.FAKE_USDC_ADDRESS);
     const fakeSCUSD = await ethers.getContractAt("FakeSCUSD", addresses.FAKE_SCUSD_ADDRESS);
 
+    // Fund the pool with tokens for fees
+    console.log("💰 Funding pool with tokens for fee collection...");
+    try {
+        // Mint tokens to the pool address for fee collection
+        await fakeUSDC.mint(mockPool.target, ethers.parseUnits("100", 6)); // 100 USDC
+        await fakeSCUSD.mint(mockPool.target, ethers.parseUnits("100", 18)); // 100 SCUSD
+        console.log("✅ Pool funded with tokens");
+    } catch (error) {
+        console.error("❌ Pool funding failed:", error);
+    }
+
     console.log("📊 Starting state:");
     await logState(mockPool, almManager);
 
@@ -41,13 +52,16 @@ async function main() {
         console.log(`ALM range: [${currentState.currentTickLower}, ${currentState.currentTickUpper})`);
         
         // Move tick to trigger rebalance
-        const newTick = currentPoolState.tick + (i % 2 === 0 ? 2 : -2);
+        const currentTick = Number(currentPoolState.tick);
+        const newTick = currentTick + (i % 2 === 0 ? 2 : -2);
         console.log(`Moving tick to: ${newTick}`);
         
         await mockPool.setTick(newTick);
         
         // Check if rebalance is needed
-        const isOutOfRange = newTick < currentState.currentTickLower || newTick >= currentState.currentTickUpper;
+        const tickLower = Number(currentState.currentTickLower);
+        const tickUpper = Number(currentState.currentTickUpper);
+        const isOutOfRange = newTick < tickLower || newTick >= tickUpper;
         
         if (isOutOfRange) {
             console.log("🚨 Tick is out of range - triggering rebalance...");
@@ -57,13 +71,13 @@ async function main() {
                 await rebalanceTx.wait();
                 console.log("✅ Rebalance successful");
                 
-                // Add some mock fees
+                // Add some mock fees (smaller amounts)
                 await mockPool.addFees(
                     1, // position index
                     currentState.currentTickLower,
                     currentState.currentTickUpper,
-                    ethers.parseUnits("10", 6), // 10 USDC fees
-                    ethers.parseUnits("10", 18)  // 10 SCUSD fees
+                    ethers.parseUnits("1", 6), // 1 USDC fees
+                    ethers.parseUnits("1", 18)  // 1 SCUSD fees
                 );
                 console.log("💰 Added mock fees");
                 
@@ -86,13 +100,14 @@ async function main() {
     console.log("\n💰 Collecting fees...");
     try {
         const currentState = await almManager.getALMState();  
+        // Use reasonable amounts instead of max values
         const collectTx = await mockPool.collect(
             deployer.address,
             1,
             currentState.currentTickLower,
             currentState.currentTickUpper,
-            ethers.MaxUint256,
-            ethers.MaxUint256
+            ethers.parseUnits("50", 6),  // Collect up to 50 USDC
+            ethers.parseUnits("50", 18)  // Collect up to 50 SCUSD
         );
         await collectTx.wait();
         console.log("✅ Fees collected");

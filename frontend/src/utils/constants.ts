@@ -6,8 +6,17 @@ export const CONTRACT_ADDRESSES = {
   TOKEN1: import.meta.env.VITE_FAKE_SCUSD_ADDRESS || '0x...',
 };
 
+// Debug logging
+console.log('Contract Addresses:', CONTRACT_ADDRESSES);
+
 // Network configuration
 export const NETWORK_CONFIG = {
+  HARDHAT_LOCAL: {
+    chainId: 31337,
+    name: 'Hardhat Local',
+    rpcUrl: 'http://localhost:8545',
+    explorerUrl: 'http://localhost:8545',
+  },
   SONIC_TESTNET: {
     chainId: 64165,
     name: 'Sonic Testnet',
