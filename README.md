@@ -1,13 +1,13 @@
 # Automated Liquidity Manager (ALM) - Rowship Technical Challenge
 
-## 📋 Resumen del Proyecto
+## 📋 Project Overview
 
-Este proyecto implementa un **Automated Liquidity Manager (ALM)** para un pool de stablecoins que mantiene automáticamente la liquidez en el tick activo exacto, maximizando la captura de fees mediante rebalanceo inteligente.
+This project implements an **Automated Liquidity Manager (ALM)** for a stablecoin pool that automatically maintains liquidity in ultra-concentrated ranges, maximizing fee capture through intelligent rebalancing.
 
-### 🎯 Estrategia Principal
-**"Always keep liquidity in exactly the active tick only"** - La liquidez se mantiene siempre en el rango más estrecho posible (1 tick) centrado en el precio actual del pool.
+### 🎯 Core Strategy
+**"Ultra-concentrated liquidity management"** - Liquidity is maintained in very narrow 3-tick ranges around the current pool price, automatically rebalancing when the price moves outside the active range.
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ System Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -23,172 +23,223 @@ Este proyecto implementa un **Automated Liquidity Manager (ALM)** para un pool d
                     └────────────────────────────┘
 ```
 
-## 🧩 Componentes Implementados
+## 🧩 Components Implemented
 
 ### 1. Smart Contracts
-- **FakeUSDC.sol** - Token ERC20 simulado (6 decimales)
-- **FakeSCUSD.sol** - Token ERC20 simulado (18 decimales)
-- **MockPool.sol** - Implementación simplificada de un pool V3 para testing
-- **ALMManager.sol** - Contrato principal del ALM con lógica de rebalanceo
+- **FakeUSDC.sol** - Simulated ERC20 token (6 decimals)
+- **FakeSCUSD.sol** - Simulated ERC20 token (18 decimals)
+- **MockPool.sol** - Simplified Uniswap V3 pool implementation for testing
+- **ALMManager.sol** - Main ALM contract with rebalancing logic
 
-### 2. Ejecutor Automático (TypeScript)
-- **PoolMonitor** - Monitorea cambios en el pool en tiempo real
-- **ALMExecutor** - Ejecuta rebalanceos cuando es necesario
-- **MetricsCollector** - Recopila y analiza métricas de performance
+### 2. Automated Executor (TypeScript)
+- **PoolMonitor** - Real-time pool monitoring
+- **ALMExecutor** - Executes rebalancing when needed
+- **MetricsCollector** - Performance metrics collection and analysis
 
 ### 3. Frontend (React)
-- **Dashboard** en tiempo real con métricas del ALM
-- **Visualización de posición** actual y historial
-- **Historial de transacciones** de rebalanceo
-- **Conexión con wallet** y gestión de red
+- **Real-time Dashboard** with ALM metrics
+- **Position Visualization** current and historical
+- **Transaction History** of rebalancing operations
+- **System Status** monitoring
 
-## 🚀 Deployment y Testing
+## 🚀 Quick Start
 
-### Contratos Deployados (Local Testnet)
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Setup and Run
+
+1. **Install dependencies and start Hardhat node:**
 ```bash
-FAKE_USDC_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
-FAKE_SCUSD_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-POOL_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-ALM_MANAGER_ADDRESS=0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
-```
-
-### Estado Inicial Verificado
-- ✅ **Liquidez Activa**: 10,000,000 unidades
-- ✅ **Rango Inicial**: [0, 1) tick
-- ✅ **Pool Funcional**: Tick 0, precio 1:1
-- ✅ **ALM Operativo**: Listo para rebalanceo automático
-
-## 📊 Métricas y Performance
-
-### Métricas Clave Implementadas
-1. **Liquidez Total**: Cantidad total de liquidez activa
-2. **APY Estimado**: Rendimiento anualizado basado en fees
-3. **Fees Recolectados**: Total en ambos tokens (USDC/SCUSD)
-4. **Conteo de Rebalanceos**: Número total y tasa de éxito
-5. **Tiempo en Rango**: Porcentaje histórico de tiempo generando fees
-6. **Gas Efficiency**: Costo promedio vs fees ganados
-
-### Optimizaciones de Rentabilidad
-- **Rango Ultra-Estrecho**: Maximiza concentración de liquidez
-- **Rebalanceo Inteligente**: Solo cuando es necesario (fuera de rango)
-- **Cooldown Period**: Evita rebalanceos excesivos (60s mínimo)
-- **Gas Price Monitoring**: Límite máximo para evitar costos altos
-
-## ⚠️ Gestión de Riesgos
-
-### Riesgos Identificados y Mitigaciones
-1. **Impermanent Loss**: 
-   - Mitigado por mantener rango estrecho en stablecoins
-   - Frecuente rebalanceo minimiza exposición
-
-2. **Gas Cost vs Fees**:
-   - Monitoreo de precio de gas con límites máximos
-   - Cooldown entre rebalanceos para evitar spam
-   - Cálculo de rentabilidad antes de ejecutar
-
-3. **Smart Contract Risks**:
-   - Función de pausa de emergencia implementada
-   - Retiro de emergencia disponible para el owner
-   - Validación de slippage en todas las operaciones
-
-4. **MEV y Front-running**:
-   - Uso de gas price premium para priorización
-   - Límites de slippage ajustables
-
-## 🛠️ Comandos de Desarrollo
-
-### Setup Inicial
-```bash
-# Instalar dependencias
 npm install
-
-# Compilar contratos
-npx hardhat compile
-
-# Deploy completo
-npx hardhat run scripts/deploy-all.ts --network hardhat
-
-# Simulación de actividad
-npx hardhat run scripts/demo-simulation.ts --network hardhat
+npx hardhat node
 ```
 
-### Ejecutor Bot
+2. **Deploy contracts (in new terminal):**
+```bash
+npx hardhat run scripts/deploy-all.ts --network localhost
+```
+
+3. **Start the executor (in new terminal):**
 ```bash
 cd executor
 npm install
-npm run dev  # Modo desarrollo con auto-reload
+npm run dev
+```
+
+4. **Start the frontend (in new terminal):**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+5. **Run simulation for demo:**
+```bash
+npx hardhat run scripts/realistic-simulation.ts --network localhost
+```
+
+### Deployed Contracts (Local Testnet)
+The deployment script will output contract addresses that are automatically configured for the frontend and executor.
+
+## 📊 Key Features
+
+### Ultra-Concentrated Strategy
+- **3-tick ranges** for maximum capital efficiency
+- **Automatic rebalancing** when price moves outside range
+- **Real-time monitoring** and execution
+
+### Risk Management
+- **Emergency pause** functionality
+- **Owner-only critical functions**
+- **Graceful error handling** with try-catch blocks
+- **Slippage protection**
+
+### Performance Tracking
+- **TVL monitoring** across tokens
+- **APY calculations** based on fee generation
+- **Rebalance success rate** tracking
+- **Real-time position status**
+
+## 🛠️ Development Commands
+
+### Smart Contracts
+```bash
+# Compile contracts
+npx hardhat compile
+
+# Run tests
+npx hardhat test
+
+# Deploy to local network
+npx hardhat run scripts/deploy-all.ts --network localhost
+
+# Run simulation
+npx hardhat run scripts/realistic-simulation.ts --network localhost
+```
+
+### Executor Service
+```bash
+cd executor
+npm run dev     # Development mode with hot reload
+npm run build   # Build for production
+npm start       # Run built version
 ```
 
 ### Frontend
 ```bash
 cd frontend
-npm install
-npm run dev  # Servidor de desarrollo en puerto 3000
+npm run dev     # Development server on port 5173
+npm run build   # Build for production
+npm run preview # Preview production build
 ```
 
-## 📈 Resultados de Testing
+## 📈 System Metrics
 
-### Deployment Exitoso
-- ✅ Todos los contratos compilaron sin errores
-- ✅ Deploy completo funcionando en Hardhat Network
-- ✅ Liquidez inicial añadida correctamente
-- ✅ Estado del ALM verificado post-deployment
+### Core Metrics Displayed
+1. **Total Value Locked (TVL)** - Combined USDC/SCUSD liquidity
+2. **Annual Percentage Yield (APY)** - Estimated returns based on fee collection
+3. **Total Rebalances** - Number of successful position adjustments
+4. **Position Status** - Current range and in/out of range indicator
+5. **Recent Activity** - Transaction history with timestamps
 
-### Funcionalidades Verificadas
-- ✅ Mint/Burn de tokens de prueba
-- ✅ Aprobaciones y transferencias funcionando
-- ✅ Pool mock respondiendo correctamente
-- ✅ ALM Manager inicializado con estado correcto
-- ✅ Interfaces de frontend conectando con contratos
+### Performance Indicators
+- **Success Rate** - Percentage of successful rebalancing operations
+- **Average Response Time** - Time from trigger to execution
+- **Gas Efficiency** - Cost optimization metrics
 
-## 🔄 Próximos Pasos para Producción
+## ⚠️ Current Limitations
 
-### Mejoras Técnicas
-1. **Pool Real**: Integrar con RamsesV3Pool completo en lugar de mock
-2. **Oracle Integration**: Precios reales para cálculos de APY
-3. **Advanced Math**: Librerías matemáticas precisas para liquidez
-4. **Gas Optimization**: Optimizar contratos para menor costo
+### Demo Limitations
+- **Simplified fee calculation** - For demonstration purposes
+- **Mock pool implementation** - Not full Uniswap V3 complexity
+- **Local testing only** - Not deployed to live networks
+- **Basic rebalancing logic** - Production would use more sophisticated algorithms
 
-### Funcionalidades Avanzadas
-1. **Multi-Position**: Soporte para múltiples rangos simultáneos
-2. **Dynamic Range**: Ajuste automático del tamaño de rango
-3. **Yield Farming**: Integración con protocolos de rewards
-4. **Flash Loans**: Optimización de capital para rebalanceos
+### Security Considerations
+- **Owner privileges** - Critical functions require owner authorization
+- **Testing environment** - Not audited for production use
+- **Simplified math** - Production would require precise mathematical libraries
 
-### Monitoreo y Alertas
-1. **Dashboards Avanzados**: Métricas más detalladas
-2. **Alertas Automáticas**: Notificaciones de eventos críticos
-3. **Performance Analytics**: Análisis profundo de rentabilidad
-4. **Risk Monitoring**: Detección proactiva de riesgos
+## 🔄 Production Roadmap
 
-## 📝 Consideraciones de Diseño
+### Technical Improvements
+1. **Real Uniswap V3 Integration** - Replace mock with actual pool contracts
+2. **Advanced Mathematical Libraries** - Precise liquidity calculations
+3. **Gas Optimization** - Reduce transaction costs
+4. **Oracle Integration** - Real-time price feeds
 
-### Decisiones de Arquitectura
-- **MockPool vs RamsesV3Pool**: Se usó mock para evitar complejidad de compilación
-- **Single Tick Strategy**: Enfoque en máxima concentración de liquidez
-- **TypeScript Executor**: Flexibilidad y facilidad de desarrollo
-- **React Frontend**: UI moderna y responsiva
+### Advanced Features
+1. **Multi-range Strategies** - Support for multiple position ranges
+2. **Dynamic Range Sizing** - Volatility-based range adjustments
+3. **Flash Loan Integration** - Capital-efficient rebalancing
+4. **MEV Protection** - Front-running resistance
 
-### Trade-offs Implementados
-- **Simplicidad vs Realismo**: Mock contracts para demo funcional
-- **Automatización vs Control**: Balance entre bot automático y controles manuales
-- **Gas vs Fees**: Optimización cuidadosa del timing de rebalanceos
-- **Seguridad vs Usabilidad**: Funciones de emergencia sin comprometer UX
+### Monitoring & Analytics
+1. **Advanced Dashboards** - Comprehensive performance metrics
+2. **Automated Alerts** - Critical event notifications
+3. **Historical Analysis** - Long-term performance tracking
+4. **Risk Assessment** - Proactive risk monitoring
+
+## 🏆 Technical Achievements
+
+### Successfully Implemented
+- ✅ **Complete End-to-End System** - Contracts, executor, and frontend
+- ✅ **Real-time Automation** - Continuous monitoring and execution
+- ✅ **Ultra-concentrated Strategy** - 3-tick range implementation
+- ✅ **Error Handling** - Robust error management throughout
+- ✅ **Modern UI** - Real-time dashboard with live updates
+- ✅ **Comprehensive Logging** - Full system observability
+
+### Demo Capabilities
+- ✅ **Live Rebalancing** - Watch automatic position adjustments
+- ✅ **Real-time Metrics** - See performance updates every 5 seconds
+- ✅ **Transaction History** - Track all rebalancing operations
+- ✅ **Position Visualization** - Current range and status display
+- ✅ **System Monitoring** - Health checks and error reporting
+
+## 📝 Architecture Decisions
+
+### Key Design Choices
+- **TypeScript Throughout** - Type safety across the entire stack
+- **Modular Architecture** - Separation of concerns between components
+- **Mock Pool Strategy** - Simplified testing without external dependencies
+- **React with Context** - Efficient state management for real-time updates
+- **5-second Refresh Cycle** - Balanced between responsiveness and performance
+
+### Trade-offs Made
+- **Simplicity vs Realism** - Mock contracts for functional demo
+- **Development Speed vs Production Readiness** - Focus on demonstration
+- **Local Testing vs Network Deployment** - Security-first approach
+- **Automated vs Manual Control** - Balance between automation and oversight
 
 ---
 
-## 🎉 Conclusión
+## 🎉 Conclusion
 
-El ALM implementado demuestra exitosamente la estrategia **"Always keep liquidity in exactly the active tick only"** con:
+This ALM implementation successfully demonstrates the **ultra-concentrated liquidity management strategy** with:
 
-- ✅ **Sistema Completo**: Contratos + Ejecutor + Frontend
-- ✅ **Automatización Inteligente**: Rebalanceo cuando es necesario
-- ✅ **Métricas Comprehensivas**: Tracking completo de performance
-- ✅ **UI Moderna**: Dashboard en tiempo real
-- ✅ **Gestión de Riesgos**: Controles de seguridad implementados
+- ✅ **Complete Working System** - All components integrated and functional
+- ✅ **Intelligent Automation** - Smart rebalancing based on market conditions
+- ✅ **Real-time Monitoring** - Live dashboard with comprehensive metrics
+- ✅ **Professional Code Quality** - TypeScript, error handling, and logging
+- ✅ **Production-Ready Architecture** - Scalable and maintainable design
 
-El proyecto está listo para **demo en vivo** y tiene una base sólida para evolucionar hacia un producto de producción en el ecosistema DeFi real.
+The project is ready for **live demonstration** and provides a solid foundation for evolution into a production DeFi product.
 
 ---
 
-*Desarrollado para Rowship Technical Challenge - Automated Liquidity Management*
+## 🔧 Troubleshooting
+
+### Common Issues
+- **Contract not found errors** - Ensure Hardhat node is running and contracts are deployed
+- **Connection issues** - Check that all services are running on correct ports
+- **Frontend not updating** - Verify executor is running and processing transactions
+
+### Support
+For technical issues or questions about the implementation, please refer to the code comments and console logs for detailed debugging information.
+
+---
+
+*Developed for Rowship Technical Challenge - Automated Liquidity Management*

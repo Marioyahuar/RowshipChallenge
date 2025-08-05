@@ -24,11 +24,11 @@ export function Dashboard() {
     refreshData 
   } = useALMContext();
 
-  // Connection status component
+  // Connection status component - Only showing refresh button
   const ConnectionStatus = () => (
     <div className="card">
       <div className="card-header">
-        <h3 className="text-lg font-semibold">Connection</h3>
+        <h3 className="text-lg font-semibold">System Status</h3>
         <button
           onClick={refreshData}
           className="btn btn-secondary text-sm"
@@ -39,56 +39,8 @@ export function Dashboard() {
       </div>
       
       <div className="space-y-3">
-        {connectionState.isConnected ? (
-          <>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Wallet</span>
-              <span className="font-mono text-sm">
-                {formatAddress(connectionState.address!)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Network</span>
-              <span className={`text-sm ${
-                isCorrectNetwork(connectionState.networkId!) 
-                  ? 'text-success-600' 
-                  : 'text-warning-600'
-              }`}>
-                {getNetworkName(connectionState.networkId!)}
-              </span>
-            </div>
-            {!isCorrectNetwork(connectionState.networkId!) && (
-              <button
-                onClick={() => switchNetwork(NETWORK_CONFIG.HARDHAT_LOCAL.chainId)}
-                className="btn btn-primary w-full text-sm"
-              >
-                Switch to Hardhat Local
-              </button>
-            )}
-            <button
-              onClick={disconnect}
-              className="btn btn-secondary w-full text-sm"
-            >
-              Disconnect
-            </button>
-          </>
-        ) : (
-          <div className="text-center">
-            <div className="text-gray-500 mb-3">
-              {connectionState.error || 'Not connected to wallet'}
-            </div>
-            <button
-              onClick={connectWallet}
-              className="btn btn-primary w-full"
-              disabled={false}
-            >
-              Connect Wallet
-            </button>
-          </div>
-        )}
-        
         {lastUpdate && (
-          <div className="text-xs text-gray-500 text-center pt-2 border-t">
+          <div className="text-xs text-gray-500 text-center pt-2">
             Last updated: {formatTimeAgo(lastUpdate.getTime())}
           </div>
         )}

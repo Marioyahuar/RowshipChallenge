@@ -237,11 +237,11 @@ export function useALMData() {
     refreshData();
   }, []); // Empty dependency array to run only once
 
-  // Set up automatic refresh - disabled for now to prevent infinite loops
-  // useEffect(() => {
-  //   const interval = setInterval(refreshData, UPDATE_INTERVALS.ALM_STATE);
-  //   return () => clearInterval(interval);
-  // }, [refreshData]);
+  // Set up automatic refresh
+  useEffect(() => {
+    const interval = setInterval(refreshData, UPDATE_INTERVALS.ALM_STATE);
+    return () => clearInterval(interval);
+  }, [refreshData]);
 
   return {
     almState,

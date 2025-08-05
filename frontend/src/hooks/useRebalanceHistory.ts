@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { ethers } from 'ethers';
-import { getALMManager, getProvider } from '../utils/contracts';
-import { CONTRACT_ADDRESSES } from '../utils/constants';
+import { useState, useEffect, useMemo } from "react";
+import { ethers } from "ethers";
+import { getALMManager, getProvider } from "../utils/contracts";
+import { CONTRACT_ADDRESSES, UPDATE_INTERVALS } from "../utils/constants";
 
 interface RebalanceEvent {
   blockNumber: number;
@@ -20,7 +20,10 @@ export function useRebalanceHistory() {
   const [error, setError] = useState<string | null>(null);
 
   const provider = useMemo(() => getProvider(), []);
-  const almManager = useMemo(() => getALMManager(CONTRACT_ADDRESSES.ALM_MANAGER, provider), [provider]);
+  const almManager = useMemo(
+    () => getALMManager(CONTRACT_ADDRESSES.ALM_MANAGER, provider),
+    [provider]
+  );
 
   const fetchRebalanceEvents = async () => {
     try {
@@ -31,12 +34,18 @@ export function useRebalanceHistory() {
       const currentBlock = await provider.getBlockNumber();
       const fromBlock = Math.max(0, currentBlock - 10000); // Last 10000 blocks (more range)
 
-      console.log(`Searching for events from block ${fromBlock} to ${currentBlock}`);
+      console.log(
+        `Searching for events from block ${fromBlock} to ${currentBlock}`
+      );
 
       // Query for Rebalanced events
       const filter = almManager.filters.Rebalanced();
-      const eventLogs = await almManager.queryFilter(filter, fromBlock, currentBlock);
-      
+      const eventLogs = await almManager.queryFilter(
+        filter,
+        fromBlock,
+        currentBlock
+      );
+
       console.log(`Found ${eventLogs.length} rebalance events`);
 
       const rebalanceEvents: RebalanceEvent[] = [];
@@ -45,7 +54,7 @@ export function useRebalanceHistory() {
         try {
           const block = await provider.getBlock(log.blockNumber);
           const parsedLog = almManager.interface.parseLog(log);
-          
+
           if (parsedLog && block) {
             rebalanceEvents.push({
               blockNumber: log.blockNumber,
@@ -59,25 +68,34 @@ export function useRebalanceHistory() {
             });
           }
         } catch (err) {
-          console.error('Error parsing rebalance event:', err);
+          console.error("Error parsing rebalance event:", err);
         }
       }
 
       // Sort by timestamp (most recent first)
-      rebalanceEvents.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-      
+      rebalanceEvents.sort(
+        (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+      );
+
       setEvents(rebalanceEvents);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch rebalance history');
-      console.error('Error fetching rebalance events:', err);
+      setError(err.message || "Failed to fetch rebalance history");
+      console.error("Error fetching rebalance events:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (CONTRACT_ADDRESSES.ALM_MANAGER && CONTRACT_ADDRESSES.ALM_MANAGER !== '0x...') {
+    if (
+      CONTRACT_ADDRESSES.ALM_MANAGER &&
+      CONTRACT_ADDRESSES.ALM_MANAGER !== "0x..."
+    ) {
       fetchRebalanceEvents();
+
+      // Set up automatic refresh synchronized with other components
+      const interval = setInterval(fetchRebalanceEvents, UPDATE_INTERVALS.REBALANCE_HISTORY);
+      return () => clearInterval(interval);
     }
   }, []);
 

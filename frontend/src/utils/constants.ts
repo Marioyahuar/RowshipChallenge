@@ -33,9 +33,10 @@ export const NETWORK_CONFIG = {
 
 // Update intervals
 export const UPDATE_INTERVALS = {
-  POOL_DATA: 10000, // 10 seconds
-  ALM_STATE: 15000, // 15 seconds
-  METRICS: 30000,   // 30 seconds
+  POOL_DATA: 5000, // 5 seconds
+  ALM_STATE: 5000, // 5 seconds - synchronized with rebalance history
+  METRICS: 5000,   // 5 seconds - all synchronized for demo
+  REBALANCE_HISTORY: 5000, // 5 seconds
 };
 
 // Token information
