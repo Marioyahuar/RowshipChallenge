@@ -210,8 +210,7 @@ contract MockPool {
         amount0 = zeroForOne ? amountSpecified : -amountSpecified;
         amount1 = zeroForOne ? -amountSpecified : amountSpecified;
         
-        // Call swap callback
-        ISwapCallback(msg.sender).uniswapV3SwapCallback(amount0, amount1, data);
+        // Simplified swap logic - fees are handled externally by simulation script
         
         emit Swap(msg.sender, recipient, amount0, amount1, _slot0.sqrtPriceX96, liquidity, _slot0.tick);
     }
@@ -225,6 +224,19 @@ contract MockPool {
         bytes32 positionKey = keccak256(abi.encodePacked(msg.sender, index, tickLower, tickUpper));
         positions[positionKey].tokensOwed0 += fees0;
         positions[positionKey].tokensOwed1 += fees1;
+    }
+
+    // New function to add fees to specific position owner
+    function addFeesToPosition(address positionOwner, uint256 index, int24 tickLower, int24 tickUpper, uint128 fees0, uint128 fees1) external {
+        bytes32 positionKey = keccak256(abi.encodePacked(positionOwner, index, tickLower, tickUpper));
+        positions[positionKey].tokensOwed0 += fees0;
+        positions[positionKey].tokensOwed1 += fees1;
+    }
+    
+    // Function to read fees directly from pool
+    function getPositionFees(address positionOwner, uint256 index, int24 tickLower, int24 tickUpper) external view returns (uint128 fees0, uint128 fees1) {
+        bytes32 positionKey = keccak256(abi.encodePacked(positionOwner, index, tickLower, tickUpper));
+        return (positions[positionKey].tokensOwed0, positions[positionKey].tokensOwed1);
     }
 }
 

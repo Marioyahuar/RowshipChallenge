@@ -116,7 +116,7 @@ export function useALMData() {
   }, [token0, token1]);
 
   const calculateMetrics = useCallback(
-    (almState: ALMState, poolData: PoolData): ALMMetrics => {
+    (almState: ALMState, poolData: PoolData, tvlData?: TVLData | null): ALMMetrics => {
       const isInRange =
         poolData.currentTick >= almState.currentTickLower &&
         poolData.currentTick < almState.currentTickUpper;
@@ -149,8 +149,15 @@ export function useALMData() {
       
       // Calculate more realistic APY based on fees and time
       let realisticAPY = 0;
-      if (totalFeesUSD > 0 && timeSinceStart > 3600) { // At least 1 hour of data
-        realisticAPY = Math.min(approxAPY, 50); // Cap at 50% for more realistic display
+      if (totalFeesUSD > 0) { // Show APY if any fees have been collected
+        // Use actual TVL from TVL data instead of liquidity value
+        const tvlAmount = tvlData?.almTVL?.total || 20000; // Use real TVL or fallback
+        
+        // For demo purposes, assume this represents 1 day of activity
+        // In production, you'd track the actual time period
+        const dailyYield = (totalFeesUSD / tvlAmount) * 100;
+        const annualizedYield = dailyYield * 365;
+        realisticAPY = Math.min(Math.max(annualizedYield, 0), 100); // Cap between 0-100% for display
       }
 
       return {
@@ -208,7 +215,7 @@ export function useALMData() {
         setPoolData(newPoolData);
         setTvlData(newTVLData);
 
-        const newMetrics = calculateMetrics(newAlmState, newPoolData);
+        const newMetrics = calculateMetrics(newAlmState, newPoolData, newTVLData);
         console.log("NEW METRICS: ", newMetrics);
         console.log("TVL DATA: ", newTVLData);
         setMetrics(newMetrics);

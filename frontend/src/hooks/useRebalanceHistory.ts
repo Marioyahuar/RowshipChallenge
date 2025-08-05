@@ -29,11 +29,15 @@ export function useRebalanceHistory() {
 
       // Get the current block number
       const currentBlock = await provider.getBlockNumber();
-      const fromBlock = Math.max(0, currentBlock - 1000); // Last 1000 blocks
+      const fromBlock = Math.max(0, currentBlock - 10000); // Last 10000 blocks (more range)
+
+      console.log(`Searching for events from block ${fromBlock} to ${currentBlock}`);
 
       // Query for Rebalanced events
       const filter = almManager.filters.Rebalanced();
       const eventLogs = await almManager.queryFilter(filter, fromBlock, currentBlock);
+      
+      console.log(`Found ${eventLogs.length} rebalance events`);
 
       const rebalanceEvents: RebalanceEvent[] = [];
 
